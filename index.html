@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IronForge - Premium Fitness Gear</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define the primary font */
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Initial state for views (hidden and slightly offset for transition) */
+        .page-view {
+            /* Position relative/block is handled by JS animation logic */
+            min-height: calc(100vh - 80px); /* Ensure minimum height when active */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            opacity: 0;
+            transform: translateY(1rem); /* 16px */
+            pointer-events: none;
+            position: absolute; /* Hide out of flow to prevent scrollbar jump */
+            width: 100%;
+            top: 0;
+            left: 0;
+            display: none; /* Initial hide */
+        }
+
+        /* Active state for visible view */
+        .page-view.active {
+            display: block; /* Show instantly to start fade-in */
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            position: relative; /* Return to document flow */
+            z-index: 10;
+        }
+
+        /* Custom scrollbar for aesthetics */
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-track { background: #0f172a; } /* bg-slate-900 */
+        body::-webkit-scrollbar-thumb { background-color: #f59e0b; border-radius: 4px; } /* bg-amber-500 */
+
+        /* General styles for clickable navigation elements */
+        .nav-link { @apply text-gray-300 hover:text-primary transition-all duration-300 font-medium; }
+        .category-card { @apply bg-slate-800 rounded-xl shadow-lg hover:shadow-amber-500/50 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer; }
+
+        /* Admin specific styles */
+        #admin-portal { background-color: #1e293b; color: white; } /* slate-800 */
+        .admin-nav-link { @apply block w-full text-left p-3 rounded-lg hover:bg-slate-700 transition-all duration-200; }
+        .admin-nav-link.active { @apply bg-primary font-bold hover:bg-amber-600; }
+        .admin-view { min-height: 80vh; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#f59e0b', // Amber-500 (Gold/Action)
+                        'secondary': '#10b981', // Emerald-500 (Success/Highlight)
+                        'dark-bg': '#0f172a', // Slate-900 (Deep Background)
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark-bg text-gray-100 antialiased">
+
+    <!-- Global Client Header & Navigation -->
+    <header id="client-header" class="bg-dark-bg border-b border-gray-800 shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo/Home Link -->
+            <button onclick="showPage('home-page')" class="text-3xl font-extrabold tracking-tight text-primary hover:text-white transition-all duration-300">
+                <span class="text-white">Iron</span>Forge
+            </button>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex space-x-8 items-center">
+                <button onclick="showPage('home-page')" class="nav-link">Home</button>
+                <button onclick="showPage('shop-page')" class="nav-link">Shop</button>
+                <button onclick="showPage('cart-page')" class="nav-link">Cart</button>
+                <button onclick="showPage('account-page')" class="nav-link">Account</button>
+                <!-- Admin Gateway Link -->
+                <button onclick="showPage('admin-login')" class="nav-link text-red-400 hover:text-red-300">Admin Login</button>
+            </nav>
+
+            <!-- Mobile Menu/Cart/Account Icons (simplified for single file) -->
+            <div class="flex items-center space-x-4 md:hidden">
+                <button onclick="showPage('cart-page')" class="text-2xl hover:text-primary transition-all duration-200">🛒</button>
+                <button onclick="showPage('account-page')" class="text-2xl hover:text-primary transition-all duration-200">👤</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container for all Pages -->
+    <!-- The padding is applied here and kept consistent -->
+    <main id="main-content" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 relative">
+
+        <!-- ************************************ -->
+        <!-- ********* 1. CLIENT HOME PAGE ********* -->
+        <!-- ************************************ -->
+        <section id="home-page" class="page-view active">
+            <div class="space-y-12 pt-8">
+                <div class="bg-slate-800 text-white p-12 rounded-xl shadow-2xl shadow-primary/30 text-center border-t-4 border-primary">
+                    <h1 class="text-5xl font-extrabold mb-3 text-white">Forge Your Fitness, Iron Will</h1>
+                    <p class="text-xl mb-6 text-gray-300">Durable gear built for relentless training. Unbreakable quality, superior performance.</p>
+                    <button onclick="showPage('shop-page')" class="bg-primary text-slate-900 font-bold py-3 px-8 rounded-full shadow-xl hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
+                        Explore The Iron Collection →
+                    </button>
+                </div>
+
+                <h2 class="text-3xl font-bold text-center text-primary">Categories of Strength</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="category-card" onclick="showPage('shop-page')">
+                        <img class="w-full h-48 object-cover rounded-t-xl" src="https://placehold.co/600x400/1e293b/f59e0b?text=Weightlifting" alt="Weightlifting" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e293b/f59e0b?text=Fallback'">
+                        <div class="p-4 bg-slate-700 rounded-b-xl">
+                            <h3 class="text-xl font-semibold text-primary">Heavy Lifting</h3>
+                        </div>
+                    </div>
+                    <div class="category-card" onclick="showPage('shop-page')">
+                        <img class="w-full h-48 object-cover rounded-t-xl" src="https://placehold.co/600x400/1e293b/10b981?text=Recovery" alt="Recovery" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e293b/10b981?text=Fallback'">
+                        <div class="p-4 bg-slate-700 rounded-b-xl">
+                            <h3 class="text-xl font-semibold text-secondary">Flexibility & Recovery</h3>
+                        </div>
+                    </div>
+                    <div class="category-card" onclick="showPage('shop-page')">
+                        <img class="w-full h-48 object-cover rounded-t-xl" src="https://placehold.co/600x400/1e293b/f43f5e?text=Endurance" alt="Endurance Tech" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e293b/f43f5e?text=Fallback'">
+                        <div class="p-4 bg-slate-700 rounded-b-xl">
+                            <h3 class="text-xl font-semibold text-rose-500">Cardio Endurance</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ************************************ -->
+        <!-- *** 2. CLIENT PRODUCT LIST PAGE (PLP) *** -->
+        <!-- ************************************ -->
+        <section id="shop-page" class="page-view">
+            <div class="space-y-8">
+                <h2 class="text-4xl font-bold text-primary border-b border-gray-700 pb-2">The Arsenal</h2>
+
+                <!-- Filters and Sorting -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-slate-800 rounded-xl shadow-lg">
+                    <div class="w-full sm:w-auto">
+                        <label for="sort" class="font-medium text-gray-300">Sort By:</label>
+                        <select id="sort" class="ml-2 p-2 border border-gray-600 bg-slate-900 rounded-lg text-gray-100">
+                            <option>Price: Low to High</option>
+                            <option>Rating: High to Low</option>
+                            <option>Newest</option>
+                        </select>
+                    </div>
+                    <div class="w-full sm:w-auto">
+                        <label for="filter" class="font-medium text-gray-300">Filter:</label>
+                        <select id="filter" class="ml-2 p-2 border border-gray-600 bg-slate-900 rounded-lg text-gray-100">
+                            <option>All Categories</option>
+                            <option>Heavy Lifting</option>
+                            <option>Flexibility</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+                    <!-- Mock Product 1: Forged Barbell Collars (Barbell Image) -->
+                    <div class="bg-slate-800 rounded-xl shadow-lg p-4 space-y-3 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.03] cursor-pointer border border-slate-700">
+                        <a href="https://www.example-accessory-details.com" target="_blank" class="block">
+                            <img class="w-full h-48 object-cover rounded-lg border border-primary/20"
+                                src="https://m.media-amazon.com/images/I/61CihjoA%2B1L._AC_UF894,1000_QL80_.jpg"
+                                alt="Forged Barbell Collars (External Details)"
+                                onerror="this.onerror=null;this.src='https://placehold.co/600x400/3b82f6/ffffff?text=Fallback+Image';">
+                            <h3 class="text-xl font-semibold text-white mt-3 hover:text-primary transition-colors duration-200">
+                                Forged Barbell Collars
+                                <span class="text-xs text-gray-500">(Linked)</span>
+                            </h3>
+                        </a>
+                        <p class="text-primary font-bold text-lg">$49.99</p>
+                        <button class="w-full bg-secondary text-slate-900 font-semibold py-2 rounded-lg hover:bg-emerald-600 transition-all duration-200">Add to Cart</button>
+                    </div>
+
+                    <!-- Mock Product 2: High-Density Recovery Mat (Tough Mat Image) -->
+                    <div class="bg-slate-800 rounded-xl shadow-lg p-4 space-y-3 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.03] cursor-pointer border border-slate-700" onclick="showPage('product-page')">
+                        <img class="w-full h-48 object-cover rounded-lg border border-secondary/20"
+                            src="https://m.media-amazon.com/images/I/71KqSUIPkrL._AC_UF1000,1000_QL80_.jpg"
+                            alt="Yoga Mat"
+                            onerror="this.onerror=null;this.src='https://placehold.co/600x400/10b981/ffffff?text=Fallback+Image'">
+                        <h3 class="text-xl font-semibold text-white">High-Density Recovery Mat</h3>
+                        <p class="text-primary font-bold text-lg">$29.50</p>
+                        <button class="w-full bg-secondary text-slate-900 font-semibold py-2 rounded-lg hover:bg-emerald-600 transition-all duration-200">Add to Cart</button>
+                    </div>
+
+                    <!-- Mock Product 3: Iron Grip Wrist Wraps (Updated Image) -->
+                    <div class="bg-slate-800 rounded-xl shadow-lg p-4 space-y-3 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.03] cursor-pointer border border-slate-700" onclick="showPage('product-page')">
+                        <img class="w-full h-48 object-cover rounded-lg border border-primary/20"
+                            src="https://m.media-amazon.com/images/I/81d1H23GzJL._AC_UF894,1000_QL80_.jpg"
+                            alt="Iron Grip Wrist Wraps"
+                            onerror="this.onerror=null;this.src='https://placehold.co/600x400/f59e0b/ffffff?text=Fallback+Image'">
+                        <h3 class="text-xl font-semibold text-white">Iron Grip Wrist Wraps</h3>
+                        <p class="text-primary font-bold text-lg">$14.99</p>
+                        <button class="w-full bg-secondary text-slate-900 font-semibold py-2 rounded-lg hover:bg-emerald-600 transition-all duration-200">Add to Cart</button>
+                    </div>
+
+                    <!-- Mock Product 4: Cerberus Speed Rope (Speed Rope Image) -->
+                    <div class="bg-slate-800 rounded-xl shadow-lg p-4 space-y-3 hover:shadow-primary/50 transition-all duration-300 transform hover:scale-[1.03] cursor-pointer border border-slate-700" onclick="showPage('product-page')">
+                        <img class="w-full h-48 object-cover rounded-lg border border-primary/20"
+                            src="https://m.media-amazon.com/images/I/71SfSgFO-XL.jpg"
+                            alt="Jump Rope"
+                            onerror="this.onerror=null;this.src='https://placehold.co/600x400/ef4444/ffffff?text=Fallback+Image'">
+                        <h3 class="text-xl font-semibold text-white">Cerberus Speed Rope</h3>
+                        <p class="text-primary font-bold text-lg">$19.99</p>
+                        <button class="w-full bg-secondary text-slate-900 font-semibold py-2 rounded-lg hover:bg-emerald-600 transition-all duration-200">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ************************************ -->
+        <!-- *** 3. CLIENT PRODUCT DETAIL PAGE (PDP) *** -->
+        <!-- ************************************ -->
+        <section id="product-page" class="page-view">
+            <button onclick="showPage('shop-page')" class="text-primary hover:underline mb-6 flex items-center transition-all duration-200">
+                ← Back to Arsenal
+            </button>
+            <div class="bg-slate-800 p-6 rounded-xl shadow-xl shadow-primary/20 grid grid-cols-1 lg:grid-cols-2 gap-8 border border-slate-700">
+                <!-- Product Image (Defaulting to Wrist Wraps) -->
+                <div>
+                    <!-- Updated to use the new Wrist Wraps image -->
+                    <img id="pdp-image" class="w-full rounded-lg shadow-2xl" src="https://m.media-amazon.com/images/I/81d1H23GzJL._AC_UF894,1000_QL80_.jpg" alt="Product Image" onerror="this.onerror=null;this.src='https://placehold.co/600x600/f59e0b/1e293b?text=Fallback+Image'">
+                </div>
+
+                <!-- Product Details -->
+                <div class="space-y-6">
+                    <h2 id="pdp-name" class="text-4xl font-extrabold text-white">Iron Grip Wrist Wraps</h2>
+                    <p class="text-2xl font-bold text-primary" id="pdp-price">$14.99</p>
+
+                    <p id="pdp-description" class="text-gray-300 leading-relaxed">
+                        Maximize your lifts with uncompromising wrist support. Our Iron Grip Wraps use military-grade elastic for maximum tension and a secure, non-slip thumb loop for quick adjustment.
+                    </p>
+
+                    <!-- Specs and CTA -->
+                    <ul class="list-disc list-inside text-gray-300 space-y-1 pl-4">
+                        <li>**Material:** Heavy-Duty Cotton & Elastic Blend</li>
+                        <li>**Size:** One size fits all (18 inches)</li>
+                        <li>**Rating:** 5.0 / 5.0 (75 Reviews)</li>
+                    </ul>
+
+                    <div class="flex items-center space-x-4 pt-4">
+                        <input type="number" value="1" min="1" class="w-20 p-3 border border-gray-600 bg-slate-900 rounded-lg text-center font-semibold text-white">
+                        <button onclick="showPage('cart-page')" class="flex-grow bg-primary text-slate-900 font-bold py-3 rounded-xl shadow-lg hover:bg-amber-600 transition-all duration-300 transform hover:scale-[1.01]">
+                            Add to Cart
+                        </button>
+                    </div>
+
+                    <!-- Reviews Section -->
+                    <div class="pt-6 border-t border-slate-700 mt-6">
+                        <h3 class="text-xl font-bold mb-3 text-white">Customer Reviews</h3>
+                        <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
+                            <p class="font-semibold text-primary">Solid Support</p>
+                            <p class="text-sm text-gray-400">"My bench press instantly improved. Best wraps I've ever used." - Mark R.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ************************************ -->
+        <!-- ***** 4. CLIENT SHOPPING CART PAGE ***** -->
+        <!-- ************************************ -->
+        <section id="cart-page" class="page-view">
+            <div class="space-y-8">
+                <h2 class="text-4xl font-bold text-primary border-b border-gray-700 pb-2 mb-8">Your Cart Inventory</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Cart Items (2/3 width) -->
+                    <div class="lg:col-span-2 space-y-4" id="cart-items-container">
+                        <!-- Mock Cart Item 1 - Forged Barbell Collars -->
+                        <div class="flex flex-col sm:flex-row items-center p-4 bg-slate-800 rounded-xl shadow-lg border border-slate-700">
+                            <img class="w-20 h-20 object-cover rounded-md mr-4 border border-primary/30" src="https://m.media-amazon.com/images/I/61CihjoA%2B1L._AC_UF894,1000_QL80_.jpg" alt="Collars" onerror="this.onerror=null;this.src='https://placehold.co/80x80/f59e0b/1e293b?text=Fallback'">
+                            <div class="flex-grow min-w-0">
+                                <button onclick="showPage('product-page')" class="font-semibold text-lg text-white hover:text-primary transition-all duration-200">Forged Barbell Collars</button>
+                                <p class="text-primary font-bold">$49.99</p>
+                            </div>
+                            <div class="flex items-center mt-3 sm:mt-0">
+                                <input type="number" value="1" min="1" class="w-16 p-2 border border-gray-600 bg-slate-900 rounded-lg text-center mx-4 text-white">
+                                <button class="text-red-500 hover:text-red-400 transition-all duration-200">Remove</button>
+                            </div>
+                        </div>
+                        <!-- Mock Cart Item 2 - High-Density Recovery Mat -->
+                        <div class="flex flex-col sm:flex-row items-center p-4 bg-slate-800 rounded-xl shadow-lg border border-slate-700">
+                            <img class="w-20 h-20 object-cover rounded-md mr-4 border border-secondary/30" src="https://m.media-amazon.com/images/I/71KqSUIPkrL._AC_UF1000,1000_QL80_.jpg" alt="Yoga Mat" onerror="this.onerror=null;this.src='https://placehold.co/80x80/10b981/1e293b?text=Fallback'">
+                            <div class="flex-grow min-w-0">
+                                <button onclick="showPage('product-page')" class="font-semibold text-lg text-white hover:text-primary transition-all duration-200">High-Density Recovery Mat</button>
+                                <p class="text-primary font-bold">$29.50</p>
+                            </div>
+                            <div class="flex items-center mt-3 sm:mt-0">
+                                <input type="number" value="2" min="1" class="w-16 p-2 border border-gray-600 bg-slate-900 rounded-lg text-center mx-4 text-white">
+                                <button class="text-red-500 hover:text-red-400 transition-all duration-200">Remove</button>
+                            </div>
+                        </div>
+                        <!-- Mock Cart Item 3 - Iron Grip Wrist Wraps (Updated Image) -->
+                        <div class="flex flex-col sm:flex-row items-center p-4 bg-slate-800 rounded-xl shadow-lg border border-slate-700">
+                            <img class="w-20 h-20 object-cover rounded-md mr-4 border border-primary/30" src="https://m.media-amazon.com/images/I/81d1H23GzJL._AC_UF894,1000_QL80_.jpg" alt="Wrist Wraps" onerror="this.onerror=null;this.src='https://placehold.co/80x80/f59e0b/1e293b?text=Fallback'">
+                            <div class="flex-grow min-w-0">
+                                <button onclick="showPage('product-page')" class="font-semibold text-lg text-white hover:text-primary transition-all duration-200">Iron Grip Wrist Wraps</button>
+                                <p class="text-primary font-bold">$14.99</p>
+                            </div>
+                            <div class="flex items-center mt-3 sm:mt-0">
+                                <input type="number" value="1" min="1" class="w-16 p-2 border border-gray-600 bg-slate-900 rounded-lg text-center mx-4 text-white">
+                                <button class="text-red-500 hover:text-red-400 transition-all duration-200">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Summary (1/3 width) -->
+                    <div class="lg:col-span-1 bg-slate-800 p-6 rounded-xl shadow-xl shadow-primary/20 h-fit space-y-4 border border-slate-700">
+                        <h3 class="text-2xl font-bold border-b border-gray-700 pb-3 text-white">Order Summary</h3>
+                        <div class="flex justify-between text-gray-300">
+                            <p>Subtotal:</p>
+                            <p>$139.48</p>
+                        </div>
+                        <div class="flex justify-between text-gray-300">
+                            <p>Shipping:</p>
+                            <p>$5.00</p>
+                        </div>
+                        <div class="flex justify-between font-extrabold text-xl border-t border-gray-700 pt-3 text-primary">
+                            <p>TOTAL:</p>
+                            <p>$144.48</p>
+                        </div>
+                        <button class="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl shadow-lg hover:bg-amber-600 transition-all duration-300">
+                            Proceed to Checkout
+                        </button>
+                        <button onclick="showPage('shop-page')" class="w-full bg-gray-700 text-gray-200 font-bold py-3 rounded-xl hover:bg-gray-600 transition-all duration-300">
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ************************************ -->
+        <!-- ***** 5. CLIENT ACCOUNT PAGE ***** -->
+        <!-- ************************************ -->
+        <section id="account-page" class="page-view">
+            <div class="space-y-8">
+                <h2 class="text-4xl font-bold text-primary border-b border-gray-700 pb-2 mb-8">My Account</h2>
+                <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700 grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                    <!-- Side Navigation -->
+                    <div class="md:col-span-1 space-y-2">
+                        <button class="w-full text-left p-3 rounded-lg bg-primary text-slate-900 font-semibold transition-all duration-200">Order History</button>
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-slate-700 text-gray-200 transition-all duration-200">Profile Details</button>
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-slate-700 text-gray-200 transition-all duration-200">Shipping Addresses</button>
+                        <button onclick="showPage('home-page')" class="w-full text-left p-3 rounded-lg text-red-400 hover:bg-red-900 transition-all duration-200">Log Out</button>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="md:col-span-3">
+                        <h3 class="text-2xl font-bold mb-4 text-white">Recent Orders</h3>
+                        <!-- Mock Order Card -->
+                        <div class="border border-slate-700 p-4 rounded-lg mb-4 bg-slate-900 hover:bg-slate-700 transition-all duration-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="font-semibold text-lg text-white">Order #IF-20231026</p>
+                                <span class="text-sm text-secondary bg-emerald-900/50 px-3 py-1 rounded-full">Shipped</span>
+                            </div>
+                            <p class="text-gray-400 mb-2">Date: 2023-10-26 | Total: $114.49 (2 items)</p>
+                            <button onclick="showPage('cart-page')" class="text-primary hover:text-amber-600 underline text-sm transition-all duration-200">View Details</button>
+                        </div>
+                        <div class="border border-slate-700 p-4 rounded-lg mb-4 bg-slate-900 hover:bg-slate-700 transition-all duration-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <p class="font-semibold text-lg text-white">Order #IF-20230915</p>
+                                <span class="text-sm text-gray-400 bg-gray-800 px-3 py-1 rounded-full">Delivered</span>
+                            </div>
+                            <p class="text-gray-400 mb-2">Date: 2023-09-15 | Total: $79.99 (1 item)</p>
+                            <button onclick="showPage('cart-page')" class="text-primary hover:text-amber-600 underline text-sm transition-all duration-200">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ************************************ -->
+        <!-- ***** 6. ADMIN LOGIN (GATEKEEPER) ***** -->
+        <!-- ************************************ -->
+        <section id="admin-login" class="page-view flex items-center justify-center py-20">
+            <div class="bg-slate-800 p-8 rounded-xl shadow-2xl shadow-red-500/30 w-full max-w-md space-y-6 border border-slate-700">
+                <h2 class="text-3xl font-bold text-center text-primary">Admin Portal Login</h2>
+                <div id="login-message" class="text-red-400 text-center hidden font-medium">Invalid credentials.</div>
+                <input type="text" id="admin-username" placeholder="Username (admin)" class="w-full p-3 border border-gray-600 bg-slate-900 rounded-lg focus:ring-primary focus:border-primary text-white" value="admin">
+                <input type="password" id="admin-password" placeholder="Password (pass)" class="w-full p-3 border border-gray-600 bg-slate-900 rounded-lg focus:ring-primary focus:border-primary text-white" value="pass">
+                <button onclick="adminLogin()" class="w-full bg-secondary text-slate-900 font-bold py-3 rounded-xl shadow-md hover:bg-emerald-600 transition-all duration-300">
+                    Forge Ahead (Log In)
+                </button>
+                <button onclick="showPage('home-page')" class="w-full text-sm text-gray-500 hover:text-primary transition-all duration-200">← Back to Website</button>
+            </div>
+        </section>
+
+        <!-- ************************************ -->
+        <!-- ********* ADMIN PORTAL AREA ********* -->
+        <!-- ************************************ -->
+        <section id="admin-portal" class="page-view p-0">
+            <div class="flex min-h-screen">
+                <!-- Admin Sidebar -->
+                <aside class="w-64 min-h-screen bg-slate-900 text-white p-4 shadow-2xl shadow-primary/20 sticky top-0">
+                    <h1 class="text-2xl font-extrabold mb-8 text-primary border-b border-gray-700 pb-3">IronForge Admin</h1>
+                    <nav class="space-y-2">
+                        <button id="nav-dashboard" onclick="showAdminPage('admin-dashboard')" class="admin-nav-link active">📊 Dashboard</button>
+                        <button id="nav-products" onclick="showAdminPage('admin-products')" class="admin-nav-link">📦 Product Management</button>
+                        <button id="nav-orders" onclick="showAdminPage('admin-orders')" class="admin-nav-link">📋 Order Management</button>
+                        <button id="nav-inventory" onclick="showAdminPage('admin-inventory')" class="admin-nav-link">🔢 Inventory Management</button>
+                        <button id="nav-customers" onclick="showAdminPage('admin-customers')" class="admin-nav-link">🧑‍🤝‍🧑 Customer Management</button>
+                        <button onclick="adminLogout()" class="admin-nav-link mt-8 text-red-400 hover:bg-red-900">🔒 Log Out</button>
+                    </nav>
+                </aside>
+
+                <!-- Admin Content Area -->
+                <div id="admin-content" class="flex-1 p-8 bg-slate-700 text-gray-100">
+
+                    <!-- *** 7. ADMIN DASHBOARD *** -->
+                    <div id="admin-dashboard" class="admin-view space-y-8">
+                        <h2 class="text-3xl font-bold text-white">Welcome Back, Overseer!</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="stat-card bg-slate-800 p-6 rounded-xl shadow-lg border-b-4 border-primary transition-all duration-200 hover:scale-[1.03]">
+                                <p class="text-sm text-gray-400">Total Sales (MoM)</p>
+                                <p class="text-3xl font-bold text-primary">$12,450</p>
+                            </div>
+                            <div class="stat-card bg-slate-800 p-6 rounded-xl shadow-lg border-b-4 border-secondary transition-all duration-200 hover:scale-[1.03]">
+                                <p class="text-sm text-gray-400">New Orders (24h)</p>
+                                <p class="text-3xl font-bold text-secondary">15</p>
+                            </div>
+                            <div class="stat-card bg-slate-800 p-6 rounded-xl shadow-lg border-b-4 border-yellow-500 cursor-pointer transition-all duration-200 hover:bg-slate-900 hover:scale-[1.03]" onclick="showAdminPage('admin-inventory')">
+                                <p class="text-sm text-gray-400">Low Stock Items</p>
+                                <p class="text-3xl font-bold text-yellow-500">3</p>
+                            </div>
+                            <div class="stat-card bg-slate-800 p-6 rounded-xl shadow-lg border-b-4 border-pink-500 transition-all duration-200 hover:scale-[1.03]">
+                                <p class="text-sm text-gray-400">New Users</p>
+                                <p class="text-3xl font-bold text-pink-500">45</p>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-semibold border-b border-gray-600 pb-2 pt-4 text-white">Pending Tasks</h3>
+                        <ul class="space-y-3 bg-slate-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                            <li class="flex justify-between items-center border-b border-gray-700 pb-2"><p>Process 5 new orders</p><button onclick="showAdminPage('admin-orders')" class="text-primary hover:text-amber-600 underline text-sm transition-all duration-200">View Orders →</button></li>
+                            <li class="flex justify-between items-center"><p>Update stock for Resistance Band</p><button onclick="showAdminPage('admin-inventory')" class="text-primary hover:text-amber-600 underline text-sm transition-all duration-200">Go to Inventory →</button></li>
+                        </ul>
+                    </div>
+
+                    <!-- *** 8. ADMIN PRODUCT MANAGEMENT *** -->
+                    <div id="admin-products" class="admin-view space-y-6 hidden">
+                        <h2 class="text-3xl font-bold text-white">Product Management</h2>
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <input type="text" placeholder="Search products..." class="p-3 border border-gray-600 bg-slate-900 rounded-lg flex-grow max-w-sm text-white">
+                            <button class="bg-primary text-slate-900 py-2 px-4 rounded-lg font-semibold hover:bg-amber-600 transition-all duration-300">+ Add New Product</button>
+                        </div>
+
+                        <div class="bg-slate-800 p-6 rounded-xl shadow-lg overflow-x-auto border border-gray-700">
+                            <table class="min-w-full divide-y divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">SKU</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Stock</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700">
+                                    <tr class="hover:bg-slate-900 transition-all duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-white">Forged Barbell Collars</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">IFD-001</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">$49.99</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary font-semibold">120</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <button class="text-primary hover:text-amber-600 transition-all duration-200">Edit</button>
+                                            <button class="text-red-500 hover:text-red-400 transition-all duration-200">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-900 transition-all duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-white">High-Density Recovery Mat</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">IFY-005</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">$29.50</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-500 font-semibold">15</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <button class="text-primary hover:text-amber-600 transition-all duration-200">Edit</button>
+                                            <button class="text-red-500 hover:text-red-400 transition-all duration-200">Delete</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- *** 9. ADMIN ORDER MANAGEMENT *** -->
+                    <div id="admin-orders" class="admin-view space-y-6 hidden">
+                        <h2 class="text-3xl font-bold text-white">Order Management</h2>
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <input type="text" placeholder="Search order ID or customer..." class="p-3 border border-gray-600 bg-slate-900 rounded-lg flex-grow max-w-sm text-white">
+                            <select class="p-3 border border-gray-600 bg-slate-900 rounded-lg text-white">
+                                <option>Status: All</option>
+                                <option>Status: Pending</option>
+                                <option>Status: Shipped</option>
+                            </select>
+                        </div>
+                        <div class="bg-slate-800 p-6 rounded-xl shadow-lg overflow-x-auto border border-gray-700">
+                            <table class="min-w-full divide-y divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Order ID</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Customer</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Total</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700">
+                                    <tr class="hover:bg-slate-900 transition-all duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-white">IF-20231027</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-primary cursor-pointer" onclick="showAdminPage('admin-customers')">John Doe</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">$89.98</td>
+                                        <td class="px-6 py-4 whitespace-nowrap"><span class="bg-red-900 text-red-300 px-3 py-1 rounded-full text-xs">Pending</span></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <button class="text-secondary hover:text-emerald-600 transition-all duration-200">Process</button>
+                                            <button class="text-primary hover:text-amber-600 transition-all duration-200">Details</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-900 transition-all duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-white">IF-20231026</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-primary cursor-pointer" onclick="showAdminPage('admin-customers')">Jane Smith</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">$114.49</td>
+                                        <td class="px-6 py-4 whitespace-nowrap"><span class="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-xs">Shipped</span></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <button class="text-primary hover:text-amber-600 transition-all duration-200">Track</button>
+                                            <button class="text-gray-500 hover:text-gray-400 transition-all duration-200">Invoice</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- *** 10. ADMIN INVENTORY MANAGEMENT *** -->
+                    <div id="admin-inventory" class="admin-view space-y-6 hidden">
+                        <h2 class="text-3xl font-bold text-white">Inventory Management</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-slate-800 p-6 rounded-xl shadow-lg border-l-4 border-yellow-500 transition-all duration-200 hover:scale-[1.03]">
+                                <p class="text-xl font-semibold text-yellow-500">Low Stock Alert</p>
+                                <p class="text-gray-400">3 items below 20 units.</p>
+                                <button onclick="showAdminPage('admin-products')" class="text-primary text-sm hover:underline mt-2 transition-all duration-200">Update Products →</button>
+                            </div>
+                            <div class="bg-slate-800 p-6 rounded-xl shadow-lg border-l-4 border-primary transition-all duration-200 hover:scale-[1.03]">
+                                <p class="text-xl font-semibold text-primary">Total Items</p>
+                                <p class="text-gray-400">24 unique SKUs</p>
+                            </div>
+                            <div class="bg-slate-800 p-6 rounded-xl shadow-lg border-l-4 border-secondary transition-all duration-200 hover:scale-[1.03]">
+                                <p class="text-xl font-semibold text-secondary">In Stock Value</p>
+                                <p class="text-gray-400">$54,800 USD</p>
+                            </div>
+                        </div>
+
+                        <h3 class="text-2xl font-semibold border-b border-gray-600 pb-2 pt-4 text-white">Stock Adjustments</h3>
+                        <div class="bg-slate-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                            <p class="font-medium mb-3 text-gray-200">Quick Stock Update for Recovery Mat (IFY-005)</p>
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <input type="number" placeholder="Current Stock: 15" class="p-3 border border-gray-600 bg-slate-900 rounded-lg flex-grow text-white">
+                                <button class="bg-secondary text-slate-900 py-3 px-6 rounded-lg font-semibold hover:bg-emerald-600 transition-all duration-300">Update Stock</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- *** 11. ADMIN CUSTOMER MANAGEMENT *** -->
+                    <div id="admin-customers" class="admin-view space-y-6 hidden">
+                        <h2 class="text-3xl font-bold text-white">Customer Management</h2>
+                        <input type="text" placeholder="Search customer name or email..." class="p-3 border border-gray-600 bg-slate-900 rounded-lg w-full max-w-sm text-white">
+
+                        <div class="bg-slate-800 p-6 rounded-xl shadow-lg overflow-x-auto border border-gray-700">
+                            <table class="min-w-full divide-y divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Total Orders</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700">
+                                    <tr class="hover:bg-slate-900 transition-all duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-white">John Doe</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">john.d@email.com</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary">12</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button onclick="showAdminPage('admin-orders')" class="text-primary hover:text-amber-600 transition-all duration-200">View Orders</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-900 transition-all duration-150">
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-white">Jane Smith</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">jane.s@email.com</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-primary">5</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button onclick="showAdminPage('admin-orders')" class="text-primary hover:text-amber-600 transition-all duration-200">View Orders</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript for SPA Navigation and Admin Login -->
+    <script>
+        const VIEWS = ['home-page', 'shop-page', 'product-page', 'cart-page', 'account-page', 'admin-login', 'admin-portal'];
+        let isLoggedIn = false;
+        let adminPortalActive = false;
+        let activePageId = 'home-page';
+
+        /**
+         * Smoothly switches between different single-page application views.
+         * Fixes scrollbar jump by controlling visibility after the fade transition.
+         */
+        function showPage(pageId) {
+            if (activePageId === pageId) return;
+
+            const currentPageElement = document.getElementById(activePageId);
+            const nextPageElement = document.getElementById(pageId);
+
+            // 1. Start fade-out on the current page
+            if (currentPageElement) {
+                currentPageElement.classList.remove('active');
+                currentPageElement.style.position = 'absolute'; // Keep it off flow during fade-out
+
+                // 2. Wait for the transition duration (500ms from CSS)
+                setTimeout(() => {
+                    // 3. Hide the current page completely after fade-out
+                    currentPageElement.style.display = 'none';
+                    currentPageElement.style.position = 'absolute'; // Ensure it stays off flow
+                }, 500);
+            }
+
+            // 4. Update the active ID
+            activePageId = pageId;
+
+            // 5. Setup and start fade-in on the next page
+            if (nextPageElement) {
+                // Determine if we are entering or exiting the full-width admin portal
+                if (pageId === 'admin-portal') {
+                    // Special case for admin portal
+                    nextPageElement.style.position = 'relative';
+                    document.getElementById('main-content').classList.remove('p-4', 'sm:p-6', 'lg:p-8');
+                    adminPortalActive = true;
+                    showAdminPage('admin-dashboard');
+                } else if (adminPortalActive && activePageId !== 'admin-portal') {
+                    // Exiting admin portal
+                    document.getElementById('main-content').classList.add('p-4', 'sm:p-6', 'lg:p-8');
+                    adminPortalActive = false;
+                }
+
+                // Show element instantly, then add active class to trigger CSS transition
+                nextPageElement.style.display = 'block';
+                setTimeout(() => {
+                    nextPageElement.classList.add('active');
+                    nextPageElement.style.position = 'relative'; // Ensure it is in flow after fade-in starts
+                }, 10);
+
+                // Scroll to top when changing pages
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        /**
+         * Shows the requested admin content panel and updates sidebar active state.
+         */
+        function showAdminPage(pageId) {
+            if (!isLoggedIn && pageId !== 'admin-login') return;
+
+            // Hide all admin views
+            document.querySelectorAll('.admin-view').forEach(view => {
+                view.style.display = 'none';
+            });
+
+            // Deactivate all sidebar links
+            document.querySelectorAll('.admin-nav-link').forEach(link => {
+                link.classList.remove('active', 'bg-primary', 'text-slate-900');
+                link.classList.add('text-gray-200', 'hover:bg-slate-700');
+            });
+
+            // Show the requested admin view
+            const targetElement = document.getElementById(pageId);
+            if (targetElement) {
+                targetElement.style.display = 'block';
+            }
+
+            // Activate the corresponding sidebar link
+            const linkId = pageId.split('-')[1];
+            const navLink = document.getElementById(`nav-${linkId}`);
+            if (navLink) {
+                navLink.classList.add('active', 'bg-primary', 'text-slate-900');
+                navLink.classList.remove('text-gray-200', 'hover:bg-slate-700');
+            }
+        }
+
+        /**
+         * Handles the mock administrator login.
+         */
+        function adminLogin() {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            const message = document.getElementById('login-message');
+
+            if (username === 'admin' && password === 'pass') {
+                isLoggedIn = true;
+                message.classList.add('hidden');
+                // Navigate to the Admin Portal container
+                showPage('admin-portal');
+            } else {
+                isLoggedIn = false;
+                message.textContent = 'Invalid credentials. Please use "admin" / "pass".';
+                message.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Handles administrator logout.
+         */
+        function adminLogout() {
+            isLoggedIn = false;
+            adminPortalActive = false;
+            // Go back to the main website home page
+            showPage('home-page');
+        }
+
+        // Initialize: Ensure only the home page is active on load
+        window.onload = () => {
+            document.querySelectorAll('.page-view').forEach(element => {
+                element.style.display = 'none';
+                element.classList.remove('active');
+                element.style.position = 'absolute';
+            });
+
+            const homePage = document.getElementById('home-page');
+            if (homePage) {
+                homePage.style.display = 'block';
+                homePage.classList.add('active');
+                homePage.style.position = 'relative';
+            }
+        };
+    </script>
+</body>
+</html>
